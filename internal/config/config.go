@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 )
 
@@ -14,6 +15,11 @@ type TelegramConfig struct {
 }
 
 func Load() (Config, error) {
+	// Настраиваю глобальное логирование при старте бота
+	handler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})
+	logger := slog.New(handler)
+	slog.SetDefault(logger)
+
 	cfg := Config{
 		Telegram: TelegramConfig{
 			BotToken: os.Getenv("TELEGRAM_BOT_TOKEN"),

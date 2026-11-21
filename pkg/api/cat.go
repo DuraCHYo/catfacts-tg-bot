@@ -2,8 +2,8 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 )
 
@@ -17,16 +17,17 @@ func GetRandomFact() (string, error) {
 	resp, err := http.Get("https://catfact.ninja/fact")
 	if resp.StatusCode != http.StatusOK {
 		body, err := io.ReadAll(resp.Body)
-		result := "Ошибка обработка запроса: " + resp.Status + " " + string(body)
-		return result, err
+		slog.Error("Ошибка обработка запроса к Catfact API", "status", resp.Status, "response", body)
+		return "", err
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println("Ошибка чтения ответа:", err)
+		slog.Error("Ошибка чтения ответа от Catfact API", "error", err)
+		return "", nil
 	}
 	if err := json.Unmarshal(body, &fact); err != nil {
-		fmt.Println("Ошибка:", err)
+		slog.Error("Ошибка Catfact API", "error", err)
 		return "", nil
 	}
 
